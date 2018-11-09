@@ -41,6 +41,7 @@ namespace Nop.Plugin.Api.Helpers
         private readonly ILocalizationService _localizationService;
         private readonly IPictureService _pictureService;
         private readonly IProductAttributeConverter _productAttributeConverter;
+        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeService _productAttributeService;
         private readonly IProductService _productService;
         private readonly IProductTagService _productTagService;
@@ -55,6 +56,7 @@ namespace Nop.Plugin.Api.Helpers
             IProductAttributeService productAttributeService,
             ICustomerApiService customerApiService,
             IProductAttributeConverter productAttributeConverter,
+            IProductAttributeParser productAttributeParser,
             ILanguageService languageService,
             ICurrencyService currencyService,
             CurrencySettings currencySettings,
@@ -70,6 +72,7 @@ namespace Nop.Plugin.Api.Helpers
             _productAttributeService = productAttributeService;
             _customerApiService = customerApiService;
             _productAttributeConverter = productAttributeConverter;
+            _productAttributeParser = productAttributeParser;
             _languageService = languageService;
             _currencyService = currencyService;
             _currencySettings = currencySettings;
@@ -172,17 +175,33 @@ namespace Nop.Plugin.Api.Helpers
         public ShoppingCartItemDto PrepareShoppingCartItemDTO(ShoppingCartItem shoppingCartItem)
         {
             var dto = shoppingCartItem.ToDto();
+
             dto.ProductDto = PrepareProductDTO(shoppingCartItem.Product);
             dto.CustomerDto = shoppingCartItem.Customer.ToCustomerForShoppingCartItemDto();
             dto.Attributes = _productAttributeConverter.Parse(shoppingCartItem.AttributesXml);
+
+            var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(shoppingCartItem.Product, shoppingCartItem.AttributesXml);
+            if (productAttributeCombination != null)
+            {
+                dto.ProductAttributeCombinationId = productAttributeCombination.Id;
+            }
+
             return dto;
         }
 
         public OrderItemDto PrepareOrderItemDTO(OrderItem orderItem)
         {
             var dto = orderItem.ToDto();
+
             dto.Product = PrepareProductDTO(orderItem.Product);
             dto.Attributes = _productAttributeConverter.Parse(orderItem.AttributesXml);
+
+            var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(orderItem.Product, orderItem.AttributesXml);
+            if (productAttributeCombination != null)
+            {
+                dto.ProductAttributeCombinationId = productAttributeCombination.Id;
+            }
+
             return dto;
         }
 

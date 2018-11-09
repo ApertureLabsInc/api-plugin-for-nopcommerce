@@ -94,6 +94,9 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
             }
         }
 
+        [JsonProperty("product_attribute_combination_id")]
+        public int? ProductAttributeCombinationId { get; set; }
+
         [JsonProperty("product_id")]
         public int? ProductId { get; set; }
 

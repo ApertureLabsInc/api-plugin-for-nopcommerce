@@ -122,6 +122,9 @@ namespace Nop.Plugin.Api.DTOs.OrderItems
         [JsonProperty("rental_end_date_utc")]
         public DateTime? RentalEndDateUtc { get; set; }
 
+        [JsonProperty("product_attribute_combination_id")]
+        public int? ProductAttributeCombinationId { get; set; }
+
         /// <summary>
         /// Gets the product
         /// </summary>
