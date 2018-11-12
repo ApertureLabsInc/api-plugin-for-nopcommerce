@@ -527,11 +527,22 @@ namespace Nop.Plugin.Api.Controllers
 
         private PlaceOrderResult PlaceOrder(Order newOrder, Customer customer)
         {
+            int cardExpirationMonth = 0;
+            int cardExpirationYear = 0;
+            int.TryParse(newOrder.CardExpirationMonth, out cardExpirationMonth);
+            int.TryParse(newOrder.CardExpirationYear, out cardExpirationYear);
+
             var processPaymentRequest = new ProcessPaymentRequest
             {
                 StoreId = newOrder.StoreId,
                 CustomerId = customer.Id,
-                PaymentMethodSystemName = newOrder.PaymentMethodSystemName
+                PaymentMethodSystemName = newOrder.PaymentMethodSystemName,
+                CreditCardName = newOrder.CardName,
+                CreditCardNumber = newOrder.CardNumber,
+                CreditCardType = newOrder.CardType,
+                CreditCardExpireMonth = cardExpirationMonth,
+                CreditCardExpireYear = cardExpirationYear,
+                CreditCardCvv2 = newOrder.CardCvv2,
             };
 
 
