@@ -27,6 +27,12 @@ namespace Nop.Plugin.Api.Models.ProductsParameters
         public List<int> Ids { get; set; }
 
         /// <summary>
+        /// A list of SKUs
+        /// </summary>
+        [JsonProperty("skus")]
+        public List<string> Skus { get; set; }
+
+        /// <summary>
         /// Amount of results (default: 50) (maximum: 250)
         /// </summary>
         [JsonProperty("limit")]
