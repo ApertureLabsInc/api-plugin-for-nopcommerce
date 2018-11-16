@@ -50,7 +50,6 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IShippingService _shippingService;
         private readonly IDTOHelper _dtoHelper;        
-        private readonly IProductAttributeConverter _productAttributeConverter;
         private readonly IStoreContext _storeContext;
         private readonly IFactory<Order> _factory;
 
