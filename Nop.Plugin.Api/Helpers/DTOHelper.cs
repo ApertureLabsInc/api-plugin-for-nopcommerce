@@ -40,7 +40,6 @@ namespace Nop.Plugin.Api.Helpers
         private readonly ILanguageService _languageService;
         private readonly ILocalizationService _localizationService;
         private readonly IPictureService _pictureService;
-        private readonly IProductAttributeConverter _productAttributeConverter;
         private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeService _productAttributeService;
         private readonly IProductService _productService;
@@ -55,7 +54,6 @@ namespace Nop.Plugin.Api.Helpers
             IPictureService pictureService,
             IProductAttributeService productAttributeService,
             ICustomerApiService customerApiService,
-            IProductAttributeConverter productAttributeConverter,
             IProductAttributeParser productAttributeParser,
             ILanguageService languageService,
             ICurrencyService currencyService,
@@ -71,7 +69,6 @@ namespace Nop.Plugin.Api.Helpers
             _pictureService = pictureService;
             _productAttributeService = productAttributeService;
             _customerApiService = customerApiService;
-            _productAttributeConverter = productAttributeConverter;
             _productAttributeParser = productAttributeParser;
             _languageService = languageService;
             _currencyService = currencyService;
@@ -178,7 +175,6 @@ namespace Nop.Plugin.Api.Helpers
 
             dto.ProductDto = PrepareProductDTO(shoppingCartItem.Product);
             dto.CustomerDto = shoppingCartItem.Customer.ToCustomerForShoppingCartItemDto();
-            dto.Attributes = _productAttributeConverter.Parse(shoppingCartItem.AttributesXml);
 
             var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(shoppingCartItem.Product, shoppingCartItem.AttributesXml);
             if (productAttributeCombination != null)
@@ -194,7 +190,6 @@ namespace Nop.Plugin.Api.Helpers
             var dto = orderItem.ToDto();
 
             dto.Product = PrepareProductDTO(orderItem.Product);
-            dto.Attributes = _productAttributeConverter.Parse(orderItem.AttributesXml);
 
             var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(orderItem.Product, orderItem.AttributesXml);
             if (productAttributeCombination != null)

@@ -77,8 +77,7 @@ namespace Nop.Plugin.Api.Controllers
             IStoreContext storeContext,
             IShippingService shippingService,
             IPictureService pictureService,
-            IDTOHelper dtoHelper,
-            IProductAttributeConverter productAttributeConverter)
+            IDTOHelper dtoHelper)
             : base(jsonFieldsSerializer, aclService, customerService, storeMappingService,
                  storeService, discountService, customerActivityService, localizationService,pictureService)
         {
@@ -92,7 +91,6 @@ namespace Nop.Plugin.Api.Controllers
             _shippingService = shippingService;
             _dtoHelper = dtoHelper;
             _productService = productService;
-            _productAttributeConverter = productAttributeConverter;
         }
 
         /// <summary>
@@ -583,10 +581,8 @@ namespace Nop.Plugin.Api.Controllers
                         orderItem.RentalEndDateUtc = null;
                     }
 
-                    var attributesXml = _productAttributeConverter.ConvertToXml(orderItem.Attributes.ToList(), product.Id);                
-
                     var errors = _shoppingCartService.AddToCart(customer, product,
-                        ShoppingCartType.ShoppingCart, storeId,attributesXml,
+                        ShoppingCartType.ShoppingCart, storeId, orderItem.AttributesXml,
                         0M, orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
                         orderItem.Quantity ?? 1);
 
