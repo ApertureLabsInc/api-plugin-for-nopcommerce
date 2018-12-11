@@ -40,12 +40,6 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         public decimal? CustomerEnteredPrice { get; set; }
 
         /// <summary>
-        /// Gets or sets the quantity
-        /// </summary>
-        [JsonProperty("quantity")]
-        public int? Quantity { get; set; }
-
-        /// <summary>
         /// Gets or sets the rental product start date (null if it's not a rental product)
         /// </summary>
         [JsonProperty("rental_start_date_utc")]
@@ -111,5 +105,35 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         /// </summary>
         [JsonProperty("customer")]
         public CustomerForShoppingCartItemDto CustomerDto { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unit price
+        /// </summary>
+        [JsonProperty("unit_price")]
+        public decimal UnitPrice { get; set; }
+
+        /// <summary>
+        /// Gets or sets the quantity
+        /// </summary>
+        [JsonProperty("quantity")]
+        public int? Quantity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the subtotal
+        /// </summary>
+        [JsonProperty("subtotal")]
+        public decimal Subtotal { get; set; }
+
+        /// <summary>
+        /// Gets or sets the discount
+        /// </summary>
+        [JsonProperty("discount")]
+        public decimal Discount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the warnings
+        /// </summary>
+        [JsonProperty("warnings")]
+        public List<string> Warnings { get; set; }
     }
 }
