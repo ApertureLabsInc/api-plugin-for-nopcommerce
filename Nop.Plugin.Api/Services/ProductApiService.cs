@@ -31,10 +31,10 @@ namespace Nop.Plugin.Api.Services
         public IList<Product> GetProducts(IList<int> ids = null,
             IList<string> skus = null,
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-           int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId,
-           int? categoryId = null, string vendorName = null, bool? publishedStatus = null)
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId,
+            int? categoryId = null, bool includeChildren = false, string vendorName = null, bool? publishedStatus = null)
         {
-            var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName, publishedStatus, ids, skus, categoryId);
+            var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName, publishedStatus, ids, skus, categoryId, includeChildren);
 
             if (sinceId > 0)
             {
@@ -72,7 +72,7 @@ namespace Nop.Plugin.Api.Services
 
         private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
             DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, string vendorName = null, 
-            bool? publishedStatus = null, IList<int> ids = null, IList<string> skus = null, int? categoryId = null)
+            bool? publishedStatus = null, IList<int> ids = null, IList<string> skus = null, int? categoryId = null, bool includeChildren = false)
         {
             var query = _productRepository.Table;
 
@@ -131,6 +131,15 @@ namespace Nop.Plugin.Api.Services
                 query = from product in query
                         join productCategoryMapping in categoryMappingsForProduct on product.Id equals productCategoryMapping.ProductId
                         select product;
+            }
+
+            if(includeChildren)
+            {
+                var childrenProducts = from childProduct in _productRepository.Table
+                                       join product in query on childProduct.ParentGroupedProductId equals product.Id
+                                       select childProduct;
+
+                query = query.Union(childrenProducts);
             }
 
             query = query.OrderBy(product => product.Id);
