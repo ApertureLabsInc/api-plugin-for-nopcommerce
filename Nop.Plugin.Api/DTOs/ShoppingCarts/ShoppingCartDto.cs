@@ -1,7 +1,9 @@
 ﻿using FluentValidation.Attributes;
 using Newtonsoft.Json;
+using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.Base;
 using Nop.Plugin.Api.Validators;
+using System;
 using System.Collections.Generic;
 
 namespace Nop.Plugin.Api.DTOs.ShoppingCarts
@@ -10,6 +12,12 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
     [JsonObject(Title = "shopping_cart")]
     public class ShoppingCartDto : BaseDto
     {
+
+        #region Private Fields
+
+        private int? _shoppingCartTypeId;
+
+        #endregion
 
         #region Constructors
 
@@ -31,12 +39,31 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         public int? CustomerId { get; set; }
 
         [JsonProperty("shopping_cart_type")]
-        public string ShoppingCartType { get; set; }
+        public string ShoppingCartType
+        {
+            get
+            {
+                var shoppingCartTypeId = _shoppingCartTypeId;
+
+                if (shoppingCartTypeId != null) return ((ShoppingCartType)shoppingCartTypeId).ToString();
+
+                return null;
+            }
+            set
+            {
+                ShoppingCartType shoppingCartType;
+                if (Enum.TryParse(value, true, out shoppingCartType))
+                {
+                    _shoppingCartTypeId = (int)shoppingCartType;
+                }
+                else _shoppingCartTypeId = null;
+            }
+        }
 
         [JsonProperty("shopping_cart_items")]
         public List<ShoppingCartItemDto> ShoppingCartItems { get; set; }
 
-        [JsonProperty("applied_coupons")]
+        [JsonProperty("coupons")]
         public List<string> Coupons { get; set; }
 
         [JsonProperty("warnings")]
@@ -47,7 +74,7 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         #region Shipping
 
         [JsonProperty("shipping_method")]
-        public string SelectedShippingMethod { get; set; }
+        public string ShippingMethod { get; set; }
 
         [JsonProperty("available_shipping_methods")]
         public List<string> AvailableShippingMethods { get; set; }
@@ -57,7 +84,7 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         #region Payment
 
         [JsonProperty("payment_method")]
-        public string SelectedPaymentMethod { get; set; }
+        public string PaymentMethod { get; set; }
 
         [JsonProperty("available_payment_methods")]
         public List<string> AvailablePaymentMethods { get; set; }

@@ -28,7 +28,8 @@ namespace Nop.Plugin.Api.Validators
 
         private void SetCustomerIdRule()
         {
-            SetGreaterThanZeroCreateOrUpdateRule(x => x.CustomerId, "invalid customer_id", "customer_id");
+            //require customer id, even though we also validate it at the cart item level
+            SetGreaterThanZeroRule(x => x.CustomerId, "invalid customer_id");
         }
 
         private void SetShoppingCartItemsRule()
@@ -58,17 +59,14 @@ namespace Nop.Plugin.Api.Validators
 
         private void SetShoppingCartTypeRule()
         {
-            if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("shopping_cart_type"))
-            {
-                RuleFor(x => x.ShoppingCartType)
-                    .NotNull()
-                    .Must(x =>
-                    {
-                        var parsed = Enum.TryParse(x, true, out ShoppingCartType _);
-                        return parsed;
-                    })
-                    .WithMessage("Please provide a valid shopping cart type");
-            }
+            //require shopping cart type even though we also validate it at the cart item level
+            RuleFor(x => x.ShoppingCartType)
+                .Must(x =>
+                {
+                    var parsed = Enum.TryParse(x, true, out ShoppingCartType _);
+                    return parsed;
+                })
+                .WithMessage("Please provide a valid shopping cart type");
         }
 
         #endregion

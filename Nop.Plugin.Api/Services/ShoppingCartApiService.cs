@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
 using Nop.Plugin.Api.Helpers;
+using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Orders;
 
 namespace Nop.Plugin.Api.Services
 {
@@ -12,16 +17,32 @@ namespace Nop.Plugin.Api.Services
 
         #region Private Fields
 
+        private readonly IStoreContext _storeContext;
+
         private readonly IRepository<ShoppingCartItem> _shoppingCartItemsRepository;
+
+        private readonly ICustomerService _customerService;
+        private readonly IProductService _productService;
+        private readonly IShoppingCartService _shoppingCartService;
+
         private readonly IDTOHelper _dtoHelper;
+        private readonly IProductAttributeConverter _productAttributeConverter;
 
         #endregion
 
         #region Constructors
 
-        public ShoppingCartApiService(IRepository<ShoppingCartItem> shoppingCartItemsRepository, IDTOHelper dtoHelper)
+        public ShoppingCartApiService(IStoreContext storeContext, IRepository<ShoppingCartItem> shoppingCartItemsRepository, ICustomerService customerService, IShoppingCartService shoppingCartService, IProductService productService, IDTOHelper dtoHelper, IProductAttributeConverter productAttributeConverter)
         {
+            _storeContext = storeContext;
+
+            _customerService = customerService;
+            _productService = productService;
+            _shoppingCartService = shoppingCartService;
+
             _shoppingCartItemsRepository = shoppingCartItemsRepository;
+
+            _productAttributeConverter = productAttributeConverter;
             _dtoHelper = dtoHelper;
         }
 
@@ -70,7 +91,32 @@ namespace Nop.Plugin.Api.Services
 
         public ShoppingCartDto UpdateShoppingCart(ShoppingCartDto shoppingCartDto)
         {
-            throw new System.NotImplementedException();
+            var customer = _customerService.GetCustomerById(shoppingCartDto.CustomerId.Value);
+            var shoppingCartTypeId = (int)Enum.Parse<ShoppingCartType>(shoppingCartDto.ShoppingCartType);
+
+            //add/update shopping cart items
+            foreach (var shoppingCartItemDto in shoppingCartDto.ShoppingCartItems)
+            {
+                var attributesXml = shoppingCartItemDto.Attributes != null && shoppingCartItemDto.Attributes.Any() ? _productAttributeConverter.ConvertToXml(shoppingCartItemDto.Attributes, shoppingCartItemDto.ProductId.Value) : null;
+                var customerEnteredPrice = shoppingCartItemDto.CustomerEnteredPrice.HasValue ? shoppingCartItemDto.CustomerEnteredPrice.Value : 0;
+                var quantity = shoppingCartItemDto.Quantity.HasValue ? shoppingCartItemDto.Quantity.Value : 1;
+
+                if (shoppingCartItemDto.Id > 0)
+                {
+                    _shoppingCartService.UpdateShoppingCartItem(customer, shoppingCartItemDto.Id, attributesXml, customerEnteredPrice, shoppingCartItemDto.RentalStartDateUtc, shoppingCartItemDto.RentalEndDateUtc, quantity);
+                }
+                else
+                {
+                    var product = _productService.GetProductById(shoppingCartItemDto.ProductId.Value);
+                    _shoppingCartService.AddToCart(customer, product, (ShoppingCartType)shoppingCartTypeId, _storeContext.CurrentStore.Id, attributesXml, customerEnteredPrice, shoppingCartItemDto.RentalStartDateUtc, shoppingCartItemDto.RentalEndDateUtc, quantity);
+                }
+            }
+
+            //get updated shopping cart items and use them to refresh the dto
+            var shoppingCartItems = _shoppingCartItemsRepository.Table.Where(x => x.CustomerId == shoppingCartDto.CustomerId && x.ShoppingCartTypeId == shoppingCartTypeId).ToList();
+            shoppingCartDto = _dtoHelper.PrepareShoppingCartDTO(customer.Id, shoppingCartTypeId, shoppingCartItems);
+
+            return shoppingCartDto;
         }
 
         public void DeleteShoppingCart(ShoppingCartDto shoppingCartDto)

@@ -269,7 +269,7 @@ namespace Nop.Plugin.Api.Helpers
             var availablePaymentMethods = _paymentService.LoadActivePaymentMethods(customer, _storeContext.CurrentStore.Id).Where(pm => !pm.HidePaymentMethod(shoppingCartItems.ToList())).ToList();
             shoppingCartDto.AvailablePaymentMethods.AddRange(availablePaymentMethods.Select(x => x.PaymentMethodDescription));
 
-            shoppingCartDto.SelectedPaymentMethod = selectedPaymentMethod?.PaymentMethodDescription;
+            shoppingCartDto.PaymentMethod = selectedPaymentMethod?.PaymentMethodDescription;
 
             #endregion
 
@@ -316,7 +316,7 @@ namespace Nop.Plugin.Api.Helpers
             }
 
             var selectedShippingMethod = _genericAttributeService.GetAttribute<ShippingOption>(customer, NopCustomerDefaults.SelectedShippingOptionAttribute, _storeContext.CurrentStore.Id);
-            shoppingCartDto.SelectedShippingMethod = selectedShippingMethod?.Name;
+            shoppingCartDto.ShippingMethod = selectedShippingMethod?.Name;
 
             #endregion
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs.Errors;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
 using Nop.Plugin.Api.Helpers;
@@ -16,6 +18,7 @@ using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Stores;
+using System;
 using System.Net;
 
 namespace Nop.Plugin.Api.Controllers
@@ -88,12 +91,17 @@ namespace Nop.Plugin.Api.Controllers
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ErrorsRootObject), 422)]
-        public IActionResult UpdateShoppingCart([ModelBinder(typeof(JsonModelBinder<ShoppingCartDto>))] ShoppingCartDto shoppingCartDto)
+
+        public IActionResult UpdateShoppingCart([ModelBinder(typeof(JsonModelBinder<ShoppingCartDto>))] Delta<ShoppingCartDto> shoppingCartDtoDelta)
         {
             if (!ModelState.IsValid)
             {
                 return Error();
             }
+
+            var shoppingCartDto = _shoppingCartApiService.GetShoppingCart(shoppingCartDtoDelta.Dto.CustomerId.Value, (int)Enum.Parse<ShoppingCartType>(shoppingCartDtoDelta.Dto.ShoppingCartType));
+
+            shoppingCartDtoDelta.Merge(shoppingCartDto);
 
             shoppingCartDto = _shoppingCartApiService.UpdateShoppingCart(shoppingCartDto);
 
