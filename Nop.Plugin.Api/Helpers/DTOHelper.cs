@@ -383,13 +383,13 @@ namespace Nop.Plugin.Api.Helpers
 
             shoppingCartItemDto.Attributes = _productAttributeConverter.Parse(shoppingCartItem.AttributesXml);
             
-            dto.ProductDto = PrepareProductDTO(shoppingCartItem.Product);
-            dto.CustomerDto = shoppingCartItem.Customer.ToCustomerForShoppingCartItemDto();
+            shoppingCartItemDto.ProductDto = PrepareProductDTO(shoppingCartItem.Product);
+            shoppingCartItemDto.CustomerDto = shoppingCartItem.Customer.ToCustomerForShoppingCartItemDto();
 
             var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(shoppingCartItem.Product, shoppingCartItem.AttributesXml);
             if (productAttributeCombination != null)
             {
-                dto.ProductAttributeCombinationId = productAttributeCombination.Id;
+                shoppingCartItemDto.ProductAttributeCombinationId = productAttributeCombination.Id;
             }
 
             ///NOTE:
