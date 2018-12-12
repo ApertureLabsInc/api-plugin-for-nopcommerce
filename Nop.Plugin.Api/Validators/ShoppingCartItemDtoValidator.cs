@@ -74,7 +74,6 @@ namespace Nop.Plugin.Api.Validators
             if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("shopping_cart_type"))
             {
                 RuleFor(x => x.ShoppingCartType)
-                    .NotNull()
                     .Must(x =>
                     {
                         var parsed = Enum.TryParse(x, true, out ShoppingCartType _);

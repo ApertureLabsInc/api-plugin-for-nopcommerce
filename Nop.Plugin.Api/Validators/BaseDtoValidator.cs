@@ -111,10 +111,7 @@ namespace Nop.Plugin.Api.Validators
 
         protected void SetGreaterThanZeroRule(Expression<Func<T, int?>> expression, string errorMessage)
         {
-            RuleFor(expression)
-                .NotNull()
-                .NotEmpty()
-                .Must(id => id > 0);
+            RuleFor(expression).Must(id => id > 0).WithMessage(errorMessage);
         }
 
         protected void SetNotNullOrEmptyCreateOrUpdateRule(Expression<Func<T, string>> expression, string errorMessage, string requestValueKey)
@@ -127,10 +124,7 @@ namespace Nop.Plugin.Api.Validators
 
         protected void SetNotNullOrEmptyRule(Expression<Func<T, string>> expression, string errorMessage)
         {
-            RuleFor(expression)
-                .NotNull()
-                .NotEmpty()
-                .WithMessage(errorMessage);
+            RuleFor(expression).NotEmpty().WithMessage(errorMessage);
         }
 
         #endregion
