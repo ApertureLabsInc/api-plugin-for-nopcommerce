@@ -38,7 +38,6 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IProductService _productService;
         private readonly IFactory<ShoppingCartItem> _factory;
-        private readonly IProductAttributeConverter _productAttributeConverter;
         private readonly IDTOHelper _dtoHelper;
         private readonly IStoreContext _storeContext;
 
@@ -55,7 +54,6 @@ namespace Nop.Plugin.Api.Controllers
             IProductService productService,
             IFactory<ShoppingCartItem> factory,
             IPictureService pictureService,
-            IProductAttributeConverter productAttributeConverter,
             IDTOHelper dtoHelper,
             IStoreContext storeContext)
             : base(jsonFieldsSerializer,
@@ -72,7 +70,6 @@ namespace Nop.Plugin.Api.Controllers
             _shoppingCartService = shoppingCartService;
             _productService = productService;
             _factory = factory;
-            _productAttributeConverter = productAttributeConverter;
             _dtoHelper = dtoHelper;
             _storeContext = storeContext;
         }
@@ -224,11 +221,9 @@ namespace Nop.Plugin.Api.Controllers
                 newShoppingCartItem.RentalEndDateUtc = null;
             }
 
-            var attributesXml =_productAttributeConverter.ConvertToXml(shoppingCartItemDelta.Dto.Attributes, product.Id);
-
             var currentStoreId = _storeContext.CurrentStore.Id;
 
-            var warnings = _shoppingCartService.AddToCart(customer, product, shoppingCartType, currentStoreId, attributesXml, 0M,
+            var warnings = _shoppingCartService.AddToCart(customer, product, shoppingCartType, currentStoreId, newShoppingCartItem.AttributesXml, 0M,
                                         newShoppingCartItem.RentalStartDateUtc, newShoppingCartItem.RentalEndDateUtc,
                                         shoppingCartItemDelta.Dto.Quantity ?? 1);
 
@@ -287,11 +282,6 @@ namespace Nop.Plugin.Api.Controllers
             {
                 shoppingCartItemForUpdate.RentalStartDateUtc = null;
                 shoppingCartItemForUpdate.RentalEndDateUtc = null;
-            }
-
-            if (shoppingCartItemDelta.Dto.Attributes != null)
-            {
-                shoppingCartItemForUpdate.AttributesXml = _productAttributeConverter.ConvertToXml(shoppingCartItemDelta.Dto.Attributes, shoppingCartItemForUpdate.Product.Id);
             }
 
             // The update time is set in the service.

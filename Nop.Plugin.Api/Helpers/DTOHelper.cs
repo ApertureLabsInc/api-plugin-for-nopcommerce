@@ -57,6 +57,7 @@ namespace Nop.Plugin.Api.Helpers
         private readonly IPictureService _pictureService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductAttributeConverter _productAttributeConverter;
+        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeService _productAttributeService;
         private readonly IProductService _productService;
         private readonly IProductTagService _productTagService;
@@ -88,6 +89,7 @@ namespace Nop.Plugin.Api.Helpers
             IDiscountService discountService,
             IGenericAttributeService genericAttributeService,
             IProductAttributeConverter productAttributeConverter,
+            IProductAttributeParser productAttributeParser,
             ILanguageService languageService,
             ICurrencyService currencyService,
             IOrderTotalCalculationService orderTotalCalculationService,
@@ -117,6 +119,7 @@ namespace Nop.Plugin.Api.Helpers
             _discountService = discountService;
             _genericAttributeService = genericAttributeService;
             _productAttributeConverter = productAttributeConverter;
+            _productAttributeParser = productAttributeParser;
             _languageService = languageService;
             _currencyService = currencyService;
             _orderTotalCalculationService = orderTotalCalculationService;
@@ -379,6 +382,15 @@ namespace Nop.Plugin.Api.Helpers
             var shoppingCartItemDto = shoppingCartItem.ToDto();
 
             shoppingCartItemDto.Attributes = _productAttributeConverter.Parse(shoppingCartItem.AttributesXml);
+            
+            dto.ProductDto = PrepareProductDTO(shoppingCartItem.Product);
+            dto.CustomerDto = shoppingCartItem.Customer.ToCustomerForShoppingCartItemDto();
+
+            var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(shoppingCartItem.Product, shoppingCartItem.AttributesXml);
+            if (productAttributeCombination != null)
+            {
+                dto.ProductAttributeCombinationId = productAttributeCombination.Id;
+            }
 
             ///NOTE:
             ///Most of this logic is borrowed from ShoppingCartModelFactory
@@ -431,8 +443,15 @@ namespace Nop.Plugin.Api.Helpers
         public OrderItemDto PrepareOrderItemDTO(OrderItem orderItem)
         {
             var dto = orderItem.ToDto();
+
             dto.Product = PrepareProductDTO(orderItem.Product);
-            dto.Attributes = _productAttributeConverter.Parse(orderItem.AttributesXml);
+
+            var productAttributeCombination = _productAttributeParser.FindProductAttributeCombination(orderItem.Product, orderItem.AttributesXml);
+            if (productAttributeCombination != null)
+            {
+                dto.ProductAttributeCombinationId = productAttributeCombination.Id;
+            }
+
             return dto;
         }
 

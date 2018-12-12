@@ -15,23 +15,6 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
     public class ShoppingCartItemDto : BaseDto
     {
         private int? _shoppingCartTypeId;
-        private List<ProductItemAttributeDto> _attributes;
-
-        /// <summary>
-        /// Gets or sets the selected attributes
-        /// </summary>
-        [JsonProperty("product_attributes")]
-        public List<ProductItemAttributeDto> Attributes
-        {
-            get
-            {
-                return _attributes;
-            }
-            set
-            {
-                _attributes = value;
-            }
-        }
 
         /// <summary>
         /// Gets or sets the price enter by a customer
@@ -87,6 +70,12 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
                 else _shoppingCartTypeId = null;
             }
         }
+
+        [JsonProperty("attributes_xml")]
+        public string AttributesXml { get; set; }
+
+        [JsonProperty("product_attribute_combination_id")]
+        public int? ProductAttributeCombinationId { get; set; }
 
         [JsonProperty("product_id")]
         public int? ProductId { get; set; }

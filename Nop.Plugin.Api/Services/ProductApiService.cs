@@ -29,11 +29,12 @@ namespace Nop.Plugin.Api.Services
         }
 
         public IList<Product> GetProducts(IList<int> ids = null,
+            IList<string> skus = null,
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId,
            int? categoryId = null, string vendorName = null, bool? publishedStatus = null)
         {
-            var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName, publishedStatus, ids, categoryId);
+            var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName, publishedStatus, ids, skus, categoryId);
 
             if (sinceId > 0)
             {
@@ -71,14 +72,18 @@ namespace Nop.Plugin.Api.Services
 
         private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
             DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, string vendorName = null, 
-            bool? publishedStatus = null, IList<int> ids = null, int? categoryId = null)
-            
+            bool? publishedStatus = null, IList<int> ids = null, IList<string> skus = null, int? categoryId = null)
         {
             var query = _productRepository.Table;
 
             if (ids != null && ids.Count > 0)
             {
                 query = query.Where(c => ids.Contains(c.Id));
+            }
+
+            if (skus != null && skus.Count > 0)
+            {
+                query = query.Where(x => skus.Contains(x.Sku));
             }
 
             if (publishedStatus != null)
