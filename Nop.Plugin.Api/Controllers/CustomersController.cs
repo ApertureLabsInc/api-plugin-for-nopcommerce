@@ -33,6 +33,7 @@ namespace Nop.Plugin.Api.Controllers
     using Microsoft.AspNetCore.Mvc;
     using DTOs.Errors;
     using JSON.Serializers;
+    using Nop.Core;
 
     [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CustomersController : BaseApiController
@@ -46,6 +47,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly ILanguageService _languageService;
         private readonly IFactory<Customer> _factory;
+        private readonly IWorkContext _workContext;
 
         // We resolve the customer settings this way because of the tests.
         // The auto mocking does not support concreate types as dependencies. It supports only interfaces.
@@ -81,7 +83,9 @@ namespace Nop.Plugin.Api.Controllers
             ICountryService countryService, 
             IMappingHelper mappingHelper, 
             INewsLetterSubscriptionService newsLetterSubscriptionService,
-            IPictureService pictureService, ILanguageService languageService) : 
+            IPictureService pictureService,
+            ILanguageService languageService,
+            IWorkContext workContext) : 
             base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService,pictureService)
         {
             _customerApiService = customerApiService;
@@ -93,6 +97,7 @@ namespace Nop.Plugin.Api.Controllers
             _encryptionService = encryptionService;
             _genericAttributeService = genericAttributeService;
             _customerRolesHelper = customerRolesHelper;
+            _workContext = workContext;
         }
 
         /// <summary>
@@ -168,6 +173,30 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Retrieve current customer
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet]
+        [Route("/api/customers/current")]
+        [ProducesResponseType(typeof(CustomersRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [GetRequestsErrorInterceptorActionFilter]
+        public IActionResult GetCurrentCustomer()
+        {
+            var customerDto = _workContext.CurrentCustomer.ToDto();
+
+            var customersRootObject = new CustomersRootObject();
+            customersRootObject.Customers.Add(customerDto);
+
+            var json = JsonFieldsSerializer.Serialize(customersRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
 
         /// <summary>
         /// Get a count of all customers

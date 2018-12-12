@@ -13,24 +13,6 @@ namespace Nop.Plugin.Api.DTOs.OrderItems
     [JsonObject(Title = "order_item")]
     public class OrderItemDto : BaseDto
     {
-        private ICollection<ProductItemAttributeDto> _attributes;
-
-        /// <summary>
-        /// Gets or sets the selected attributes
-        /// </summary>
-        [JsonProperty("product_attributes")]
-        public ICollection<ProductItemAttributeDto> Attributes
-        {
-            get
-            {
-                return _attributes;
-            }
-            set
-            {
-                _attributes = value;
-            }
-        }
-
         /// <summary>
         /// Gets or sets the quantity
         /// </summary>
@@ -122,9 +104,12 @@ namespace Nop.Plugin.Api.DTOs.OrderItems
         [JsonProperty("rental_end_date_utc")]
         public DateTime? RentalEndDateUtc { get; set; }
 
-        /// <summary>
-        /// Gets the product
-        /// </summary>
+        [JsonProperty("attributes_xml")]
+        public string AttributesXml { get; set; }
+
+        [JsonProperty("product_attribute_combination_id")]
+        public int? ProductAttributeCombinationId { get; set; }
+
         [JsonProperty("product")]
         [DoNotMap]
         public ProductDto Product { get; set; }

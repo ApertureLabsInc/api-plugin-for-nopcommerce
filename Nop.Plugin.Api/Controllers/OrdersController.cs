@@ -50,7 +50,6 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IShippingService _shippingService;
         private readonly IDTOHelper _dtoHelper;        
-        private readonly IProductAttributeConverter _productAttributeConverter;
         private readonly IStoreContext _storeContext;
         private readonly IFactory<Order> _factory;
 
@@ -78,8 +77,7 @@ namespace Nop.Plugin.Api.Controllers
             IStoreContext storeContext,
             IShippingService shippingService,
             IPictureService pictureService,
-            IDTOHelper dtoHelper,
-            IProductAttributeConverter productAttributeConverter)
+            IDTOHelper dtoHelper)
             : base(jsonFieldsSerializer, aclService, customerService, storeMappingService,
                  storeService, discountService, customerActivityService, localizationService,pictureService)
         {
@@ -93,7 +91,6 @@ namespace Nop.Plugin.Api.Controllers
             _shippingService = shippingService;
             _dtoHelper = dtoHelper;
             _productService = productService;
-            _productAttributeConverter = productAttributeConverter;
         }
 
         /// <summary>
@@ -527,11 +524,22 @@ namespace Nop.Plugin.Api.Controllers
 
         private PlaceOrderResult PlaceOrder(Order newOrder, Customer customer)
         {
+            int cardExpirationMonth = 0;
+            int cardExpirationYear = 0;
+            int.TryParse(newOrder.CardExpirationMonth, out cardExpirationMonth);
+            int.TryParse(newOrder.CardExpirationYear, out cardExpirationYear);
+
             var processPaymentRequest = new ProcessPaymentRequest
             {
                 StoreId = newOrder.StoreId,
                 CustomerId = customer.Id,
-                PaymentMethodSystemName = newOrder.PaymentMethodSystemName
+                PaymentMethodSystemName = newOrder.PaymentMethodSystemName,
+                CreditCardName = newOrder.CardName,
+                CreditCardNumber = newOrder.CardNumber,
+                CreditCardType = newOrder.CardType,
+                CreditCardExpireMonth = cardExpirationMonth,
+                CreditCardExpireYear = cardExpirationYear,
+                CreditCardCvv2 = newOrder.CardCvv2,
             };
 
 
@@ -573,10 +581,8 @@ namespace Nop.Plugin.Api.Controllers
                         orderItem.RentalEndDateUtc = null;
                     }
 
-                    var attributesXml = _productAttributeConverter.ConvertToXml(orderItem.Attributes.ToList(), product.Id);                
-
                     var errors = _shoppingCartService.AddToCart(customer, product,
-                        ShoppingCartType.ShoppingCart, storeId,attributesXml,
+                        ShoppingCartType.ShoppingCart, storeId, orderItem.AttributesXml,
                         0M, orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
                         orderItem.Quantity ?? 1);
 
