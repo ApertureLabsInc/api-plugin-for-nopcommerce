@@ -530,7 +530,8 @@ namespace Nop.Plugin.Api.Helpers
                 image = new ImageDto
                 {
                     //Attachment = Convert.ToBase64String(picture.PictureBinary),
-                    Src = _pictureService.GetPictureUrl(picture)
+                    Src = _pictureService.GetPictureUrl(picture),
+                    EntityPictureType = picture.EntityPictureType
                 };
             }
 
