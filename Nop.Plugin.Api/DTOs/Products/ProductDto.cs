@@ -650,5 +650,8 @@ namespace Nop.Plugin.Api.DTOs.Products
 
         [JsonProperty("se_name")]
         public string SeName { get; set; }
+
+        [JsonProperty("url")]
+        public string Url { get; set; }
     }
 }
