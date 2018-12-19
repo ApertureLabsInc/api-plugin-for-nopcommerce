@@ -55,7 +55,20 @@ namespace Nop.Plugin.Api.Services
             var customerIds = new List<int> { customerId };
             var shoppingCartTypeIds = new List<int> { shoppingCartTypeId };
 
-            var shoppingCartDto = GetShoppingCarts(customerIds: customerIds, shoppingCartTypeIds: shoppingCartTypeIds).Single();
+            var shoppingCartType = (ShoppingCartType)shoppingCartTypeId;
+
+            ShoppingCartDto shoppingCartDto = null;
+
+            var shoppingCartDtos = GetShoppingCarts(customerIds: customerIds, shoppingCartTypeIds: shoppingCartTypeIds);
+            if (shoppingCartDtos.Any(x => x.CustomerId == customerId && x.ShoppingCartType == shoppingCartType.ToString()))
+            {
+                shoppingCartDto = shoppingCartDtos.Single();
+            }
+            else
+            {
+                //return an empty shopping cart if the customer does not have any shopping cart items for the specific shopping cart type
+                shoppingCartDto = new ShoppingCartDto() { CustomerId = customerId, ShoppingCartType = ((ShoppingCartType)shoppingCartTypeId).ToString(), ShoppingCartItems = new List<ShoppingCartItemDto>() };
+            }
 
             return shoppingCartDto;
         }

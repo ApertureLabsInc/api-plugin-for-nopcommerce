@@ -358,6 +358,11 @@ namespace Nop.Plugin.Api.Helpers
 
             //total
             var total = _orderTotalCalculationService.GetShoppingCartTotal(shoppingCartItemsList, out decimal orderTotalDiscountAmountBase, out List<DiscountForCaching> _, out List<AppliedGiftCard> appliedGiftCards, out int redeemedRewardPoints, out decimal redeemedRewardPointsAmount);
+            if (!total.HasValue)
+            {
+                shoppingCartDto.Warnings.Add("Order total couldn't be calculated");
+            }
+
             if (total.HasValue)
             {
                 total = _currencyService.ConvertFromPrimaryStoreCurrency(total.Value, _workContext.WorkingCurrency);
@@ -530,7 +535,8 @@ namespace Nop.Plugin.Api.Helpers
                 image = new ImageDto
                 {
                     //Attachment = Convert.ToBase64String(picture.PictureBinary),
-                    Src = _pictureService.GetPictureUrl(picture)
+                    Src = _pictureService.GetPictureUrl(picture),
+                    EntityPictureType = picture.EntityPictureType
                 };
             }
 
