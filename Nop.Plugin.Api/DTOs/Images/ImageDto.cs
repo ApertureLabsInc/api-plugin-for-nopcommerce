@@ -12,6 +12,9 @@ namespace Nop.Plugin.Api.DTOs.Images
         [JsonProperty("attachment")]
         public string Attachment { get; set; }
 
+        [JsonProperty("entitypicturetype")]
+        public EntityPictureType EntityPictureType { get; set; }
+
         [JsonIgnore]
         public byte[] Binary { get; set; }
 

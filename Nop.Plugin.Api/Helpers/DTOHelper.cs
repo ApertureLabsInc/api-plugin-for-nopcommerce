@@ -358,15 +358,14 @@ namespace Nop.Plugin.Api.Helpers
 
             //total
             var total = _orderTotalCalculationService.GetShoppingCartTotal(shoppingCartItemsList, out decimal orderTotalDiscountAmountBase, out List<DiscountForCaching> _, out List<AppliedGiftCard> appliedGiftCards, out int redeemedRewardPoints, out decimal redeemedRewardPointsAmount);
-            if (!total.HasValue)
-            {
-                shoppingCartDto.Warnings.Add("Order total couldn't be calculated");
-            }
-
             if (total.HasValue)
             {
                 total = _currencyService.ConvertFromPrimaryStoreCurrency(total.Value, _workContext.WorkingCurrency);
                 shoppingCartDto.Total = total.Value;
+            }
+            else
+            {
+                shoppingCartDto.Warnings.Add("Order total couldn't be calculated");
             }
 
             if (orderTotalDiscountAmountBase > decimal.Zero)
