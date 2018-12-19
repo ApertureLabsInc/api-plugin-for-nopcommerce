@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
+using Hausera.Core.Shared.EnumsAndConstants;
 using Nop.Plugin.Api.Attributes;
 
 namespace Nop.Plugin.Api.DTOs.Images
