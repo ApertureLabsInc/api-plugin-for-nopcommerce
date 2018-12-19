@@ -40,7 +40,12 @@ namespace Nop.Plugin.Api.Validators
 
         private void SetQuantityRule()
         {
-            SetGreaterThanZeroCreateOrUpdateRule(x => x.Quantity, "invalid quantity", "quantity");
+            if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("quantity"))
+            {
+                RuleFor(x => x.Quantity)
+                    .GreaterThanOrEqualTo(0)
+                    .WithMessage("invalid quantity");
+            }
         }
 
         private void SetRentalDateRules()

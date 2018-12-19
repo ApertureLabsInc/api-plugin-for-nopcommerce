@@ -363,6 +363,10 @@ namespace Nop.Plugin.Api.Helpers
                 total = _currencyService.ConvertFromPrimaryStoreCurrency(total.Value, _workContext.WorkingCurrency);
                 shoppingCartDto.Total = total.Value;
             }
+            else
+            {
+                shoppingCartDto.Warnings.Add("Order total couldn't be calculated");
+            }
 
             if (orderTotalDiscountAmountBase > decimal.Zero)
             {
