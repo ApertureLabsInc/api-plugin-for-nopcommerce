@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hausera.Core.Shared.EnumsAndConstants;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Vendors;
@@ -16,16 +17,20 @@ namespace Nop.Plugin.Api.Services
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<ProductCategory> _productCategoryMappingRepository;
         private readonly IRepository<Vendor> _vendorRepository;
+        private readonly IRepository<RelatedProduct> _relatedProductsRepository;
+
 
         public ProductApiService(IRepository<Product> productRepository,
             IRepository<ProductCategory> productCategoryMappingRepository,
             IRepository<Vendor> vendorRepository,
+            IRepository<RelatedProduct> relatedProductsRepository,
             IStoreMappingService storeMappingService)
         {
             _productRepository = productRepository;
             _productCategoryMappingRepository = productCategoryMappingRepository;
             _vendorRepository = vendorRepository;
             _storeMappingService = storeMappingService;
+            _relatedProductsRepository = relatedProductsRepository;
         }
 
         public IList<Product> GetProducts(IList<int> ids = null,
@@ -145,6 +150,31 @@ namespace Nop.Plugin.Api.Services
             query = query.OrderBy(product => product.Id);
 
             return query;
+        }
+
+        public IList<Product> GetRelatedProducts(int productId, ProductRelationshipType relationshipType, bool includeChildren = true)
+        {
+            var relatedProducts = from relatedProduct in _relatedProductsRepository.Table
+                        where (relatedProduct.ProductId1 == productId || relatedProduct.ProductId2 == productId) && relatedProduct.ProductRelationshipType == relationshipType
+                                  select relatedProduct;
+
+            var query = from product in _productRepository.Table
+                        from relatedProduct in relatedProducts 
+                        where (product.Id == relatedProduct.ProductId1 || product.Id == relatedProduct.ProductId2) && product.Id != productId
+                        orderby relatedProduct.DisplayOrder
+                        select product;
+
+            if (includeChildren)
+            {
+                var childrenProducts = from childProduct in _productRepository.Table
+                                       join product in query on childProduct.ParentGroupedProductId equals product.Id
+                                       select childProduct;
+
+                query = query.Union(childrenProducts);
+            }
+
+
+            return query.ToList();
         }
     }
 }

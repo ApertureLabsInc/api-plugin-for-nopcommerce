@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hausera.Core.Shared.EnumsAndConstants;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Constants;
 
@@ -20,5 +21,7 @@ namespace Nop.Plugin.Api.Services
         Product GetProductById(int productId);
 
         Product GetProductByIdNoTracking(int productId);
+
+        IList<Product> GetRelatedProducts(int productId, ProductRelationshipType relationshipType, bool includeChildren);
     }
 }

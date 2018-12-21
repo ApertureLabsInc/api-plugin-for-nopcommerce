@@ -31,6 +31,7 @@ namespace Nop.Plugin.Api.Controllers
     using Microsoft.AspNetCore.Mvc;
     using DTOs.Errors;
     using JSON.Serializers;
+    using Hausera.Core.Shared.EnumsAndConstants;
 
     [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductsController : BaseApiController
@@ -109,6 +110,35 @@ namespace Nop.Plugin.Api.Controllers
             };
 
             var json = JsonFieldsSerializer.Serialize(productsRootObject, parameters.Fields);
+
+            return new RawJsonActionResult(json);
+        }
+
+        /// <summary>
+        /// Receive a list of related products
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet]
+        [Route("/api/products/related")]
+        [ProducesResponseType(typeof(ProductsRootObjectDto), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [GetRequestsErrorInterceptorActionFilter]
+        public IActionResult GetRelatedProducts(int productId, ProductRelationshipType relationship_type, bool include_children, string fields="")
+        {
+            var relatedProducts = _productApiService.GetRelatedProducts(productId, relationship_type, include_children)
+                                                .Where(p => StoreMappingService.Authorize(p));
+
+            IList<ProductDto> productsAsDtos = relatedProducts.Select(product => _dtoHelper.PrepareProductDTO(product)).ToList();
+
+            var productsRootObject = new ProductsRootObjectDto()
+            {
+                Products = productsAsDtos
+            };
+
+            var json = JsonFieldsSerializer.Serialize(productsRootObject, fields);
 
             return new RawJsonActionResult(json);
         }
